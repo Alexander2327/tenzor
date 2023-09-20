@@ -8,7 +8,7 @@ from config import db_config
 
 def create_tabel_with_data() -> None:
     """Функция создает таблицу в бд и заполняет её данными."""
-    with psycopg2.connect(**db_config) as connection:
+    with conn as connection:
         with connection.cursor() as cursor:
             with open('data.json') as file:
                 data = json.load(file)
@@ -24,13 +24,15 @@ def create_tabel_with_data() -> None:
 
 def find_employees(empl_id: int) -> str:
     """Функция возвращает сотрудников одного офиса."""
-    with psycopg2.connect(**db_config) as connection:
+    with conn as connection:
         with connection.cursor() as cursor:
             cursor.execute(queries.main_query, [empl_id])
             return ' '.join(list(map(lambda x: x[0], cursor.fetchall())))
 
 
 if __name__ == '__main__':
+    conn = psycopg2.connect(**db_config)
+
     create_tabel_with_data()
 
     employee_id = input('Введите id сотрудника: ')
@@ -40,3 +42,5 @@ if __name__ == '__main__':
             print(result)
     except ValueError:
         print('Неверные данные')
+
+    conn.close()
